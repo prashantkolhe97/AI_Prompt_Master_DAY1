@@ -1,0 +1,2319 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prompt Master - Day 1: Meet Your AI Study Partner</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6C63FF',
+                        secondary: '#00D4FF',
+                        accent: '#FFB703',
+                        success: '#22C55E',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- CSS Enhancements -->
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .light .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(108, 99, 255, 0.1);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(108, 99, 255, 0.4);
+            box-shadow: 0 12px 30px -10px rgba(108, 99, 255, 0.25);
+        }
+        .light .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(108, 99, 255, 0.15);
+            box-shadow: 0 8px 24px rgba(149, 157, 165, 0.1);
+        }
+        .light .glass-card:hover {
+            border-color: rgba(108, 99, 255, 0.5);
+            box-shadow: 0 12px 30px -10px rgba(108, 99, 255, 0.15);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #6C63FF;
+            border-radius: 10px;
+        }
+        /* Animation keyframes */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.03); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 4s ease-in-out infinite;
+        }
+        /* Glowing borders */
+        .neon-glow-primary {
+            box-shadow: 0 0 15px rgba(108, 99, 255, 0.4);
+        }
+        .neon-glow-secondary {
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-[#050515] text-slate-100 min-h-screen relative transition-colors duration-300">
+
+    <!-- Canvas Background for neural network / floating particles -->
+    <canvas id="bg-canvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-40"></canvas>
+
+    <!-- Global Sound Toggle & Theme Toggle -->
+    <div class="fixed bottom-6 right-6 z-50 flex items-center gap-3">
+        <button id="sound-toggle" onclick="toggleSound()" class="p-3 rounded-full glass hover:bg-primary/20 text-slate-300 transition-all shadow-lg" title="Toggle Sound Effects">
+            <i data-lucide="volume-2" id="sound-icon" class="w-5 h-5 text-secondary"></i>
+        </button>
+        <button id="theme-toggle" onclick="toggleTheme()" class="p-3 rounded-full glass hover:bg-primary/20 text-slate-300 transition-all shadow-lg" title="Toggle Light/Dark Mode">
+            <i data-lucide="sun" id="theme-icon-light" class="w-5 h-5 text-accent hidden"></i>
+            <i data-lucide="moon" id="theme-icon-dark" class="w-5 h-5 text-primary"></i>
+        </button>
+    </div>
+
+    <!-- Live XP Notification toast -->
+    <div id="xp-toast" class="fixed top-24 right-6 z-50 transform translate-x-72 opacity-0 transition-all duration-500 ease-out flex items-center gap-3 bg-slate-900/90 border border-secondary/30 backdrop-blur px-4 py-3 rounded-xl shadow-2xl">
+        <div class="p-2 bg-secondary/10 rounded-lg text-secondary">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+        </div>
+        <div>
+            <div class="text-xs text-slate-400">XP Gained!</div>
+            <div class="font-bold text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary" id="xp-toast-amount">+20 XP</div>
+        </div>
+    </div>
+
+    <!-- Layout Wrapper -->
+    <div class="relative z-10 flex flex-col min-h-screen">
+
+        <!-- Top Header Navigation -->
+        <header class="glass sticky top-0 z-40 px-4 md:px-8 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 rounded-xl bg-gradient-to-tr from-primary to-secondary text-white shadow-lg shadow-primary/25 animate-pulse-slow">
+                    <i data-lucide="brain-circuit" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-secondary dark:from-white dark:via-slate-200 dark:to-secondary">
+                        AI Prompt Master
+                    </h1>
+                    <p class="text-[10px] md:text-xs text-secondary font-semibold uppercase tracking-widest">Day 1: Mission Partner</p>
+                </div>
+            </div>
+
+            <!-- Gamified Status Stats -->
+            <div class="flex items-center gap-3 md:gap-6 flex-wrap">
+                <!-- Progress & XP -->
+                <div class="flex items-center gap-4 bg-slate-950/40 dark:bg-slate-950/60 py-1.5 px-3 rounded-xl border border-white/5">
+                    <div class="text-center">
+                        <div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Level</div>
+                        <div id="level-display" class="font-extrabold text-accent text-sm md:text-base">1</div>
+                    </div>
+                    <div class="h-8 w-[1px] bg-white/10"></div>
+                    <div class="text-center">
+                        <div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Total XP</div>
+                        <div id="xp-display" class="font-extrabold text-secondary text-sm md:text-base">0 / 400</div>
+                    </div>
+                </div>
+
+                <!-- Badges Shelf preview -->
+                <div class="hidden md:flex items-center gap-2" id="badge-shelf-header">
+                    <!-- Badges will be appended here dynamically -->
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Body Grid Layout -->
+        <div class="flex-grow flex flex-col lg:flex-row">
+
+            <!-- Responsive Progress Sidebar -->
+            <aside class="lg:w-72 glass border-r border-white/5 lg:sticky lg:top-[73px] lg:h-[calc(100vh-73px)] overflow-y-auto p-4 z-30 flex lg:flex-col gap-3 lg:gap-4 flex-row snap-x overflow-x-auto w-full">
+                <div class="lg:block hidden mb-2">
+                    <h3 class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-2">Mission Milestones</h3>
+                    <div class="w-full bg-slate-900 dark:bg-slate-900/50 rounded-full h-1.5 overflow-hidden">
+                        <div id="sidebar-progress-bar" class="bg-gradient-to-r from-primary to-secondary h-full transition-all duration-500 w-0"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1">
+                        <span id="sidebar-percentage">0% Complete</span>
+                        <span id="sidebar-completed-count">0/11 Steps</span>
+                    </div>
+                </div>
+
+                <div class="flex lg:flex-col gap-2 min-w-max lg:min-w-0 w-full" id="mission-steps-list">
+                    <!-- Navigation milestones generated via JS -->
+                </div>
+            </aside>
+
+            <!-- Learning Content Area -->
+            <main class="flex-grow p-4 md:p-8 flex flex-col items-center justify-start max-w-5xl mx-auto w-full relative">
+                
+                <div id="slide-container" class="w-full transition-all duration-500 transform opacity-100 translate-y-0 min-h-[70vh] flex flex-col justify-between">
+                    <!-- Dynamic Slide content gets injected here -->
+                </div>
+
+            </main>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="glass border-t border-white/5 text-center py-4 text-xs text-slate-400 z-10 flex flex-col sm:flex-row justify-between items-center px-8 gap-2">
+            <div>
+                &copy; 2026 <span class="text-secondary font-bold">AI Prompt Master</span> Academy. All rights Reserved.
+            </div>
+            <div class="flex gap-4 items-center">
+                <span>Designed for BCA, BCS, Engineering & Tech Undergraduates</span>
+                <span class="text-accent flex items-center gap-1"><i data-lucide="zap" class="w-3.5 h-3.5"></i> Mission System Active</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Templates & JS Logic -->
+    <script>
+        // Sound toggle and synthesizer state
+        let soundEnabled = true;
+        let isDarkMode = true;
+
+        // Custom Sound Generator using Web Audio API to prevent broken external asset links
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTone(freq, type, duration) {
+            if (!soundEnabled) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type || 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {
+                console.log("Audio not allowed yet by user interaction");
+            }
+        }
+
+        function playSound(style) {
+            if (style === 'success') {
+                playTone(523.25, 'triangle', 0.15); // C5
+                setTimeout(() => playTone(659.25, 'triangle', 0.2), 100); // E5
+            } else if (style === 'fail') {
+                playTone(220, 'sawtooth', 0.3); // A3 buzz
+            } else if (style === 'badge') {
+                // Celebration chord
+                playTone(261.63, 'sine', 0.1); // C4
+                setTimeout(() => playTone(329.63, 'sine', 0.1), 80); // E4
+                setTimeout(() => playTone(392.00, 'sine', 0.1), 160); // G4
+                setTimeout(() => playTone(523.25, 'sine', 0.3), 240); // C5
+            } else if (style === 'click') {
+                playTone(440, 'sine', 0.05); // A4 tap
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const soundIcon = document.getElementById('sound-icon');
+            if (soundEnabled) {
+                soundIcon.setAttribute('data-lucide', 'volume-2');
+                soundIcon.classList.add('text-secondary');
+                soundIcon.classList.remove('text-slate-500');
+            } else {
+                soundIcon.setAttribute('data-lucide', 'volume-x');
+                soundIcon.classList.remove('text-secondary');
+                soundIcon.classList.add('text-slate-500');
+            }
+            lucide.createIcons();
+            playSound('click');
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            const body = document.body;
+            const html = document.documentElement;
+            const iconDark = document.getElementById('theme-icon-dark');
+            const iconLight = document.getElementById('theme-icon-light');
+
+            if (isDarkMode) {
+                html.classList.add('dark');
+                body.classList.add('bg-[#050515]');
+                body.classList.remove('bg-slate-50', 'text-slate-800');
+                body.classList.add('text-slate-100');
+                iconDark.classList.remove('hidden');
+                iconLight.classList.add('hidden');
+            } else {
+                html.classList.remove('dark');
+                body.classList.remove('bg-[#050515]');
+                body.classList.add('bg-slate-50', 'text-slate-800');
+                body.classList.remove('text-slate-100');
+                iconDark.classList.add('hidden');
+                iconLight.classList.remove('hidden');
+            }
+            playSound('click');
+        }
+
+        // Global gamified state
+        const appState = {
+            xp: 0,
+            level: 1,
+            unlockedBadges: [],
+            completedSteps: {}, // Tracks step indices completed
+            currentStep: 0,
+            userName: '',
+            userCourse: '',
+            wordCloud: [
+                { text: 'ChatGPT', weight: 8 },
+                { text: 'Future', weight: 6 },
+                { text: 'Robot', weight: 5 },
+                { text: 'Technology', weight: 7 },
+                { text: 'Jobs', weight: 4 },
+                { text: 'Coding', weight: 5 },
+                { text: 'Incredible', weight: 3 }
+            ],
+            userWordSubmitted: false,
+            icebreakerSubmitted: false,
+            icebreakerTimer: 30,
+            icebreakerTimerInterval: null,
+            pollSelected: null,
+            quizAnswers: {},
+            promptA_improved: false,
+            promptsRewritten: {
+                python: '',
+                networking: '',
+                notes: '',
+                assignment: ''
+            },
+            promptEvaluations: {
+                python: { score: 0, feedback: 'Not submitted' },
+                networking: { score: 0, feedback: 'Not submitted' },
+                notes: { score: 0, feedback: 'Not submitted' },
+                assignment: { score: 0, feedback: 'Not submitted' }
+            },
+            teaSelection: {
+                type: 'standard',
+                sugar: 'medium',
+                milk: 'yes',
+                cups: 2,
+                audience: 'guests'
+            },
+            selectedToolIndex: 0,
+            toolMatching: {
+                matches: {}, // maps taskId to toolId
+                checked: false,
+                isCorrect: false
+            },
+            capabilitiesAnswers: {},
+            capabilitiesChecked: false,
+            factCheckAnswers: {},
+            treasureHuntSelection: 'timetable',
+            treasureHuntSubmission: '',
+            treasureHuntEvaluated: false,
+            treasureHuntScore: 0,
+            reflectionData: {
+                learned: ['', '', ''],
+                tools: ['', ''],
+                useCase: ''
+            }
+        };
+
+        const badgeDatabase = {
+            'ai_explorer': { id: 'ai_explorer', title: 'AI Explorer', icon: 'compass', desc: 'Started your prompt engineering journey', color: 'text-primary border-primary/40 bg-primary/10' },
+            'prompt_detective': { id: 'prompt_detective', title: 'Prompt Detective', icon: 'search', desc: 'Mastered standard vs. detailed prompts', color: 'text-secondary border-secondary/40 bg-secondary/10' },
+            'generative_genius': { id: 'generative_genius', title: 'Generative Genius', icon: 'palette', desc: 'Discovered generative pattern control', color: 'text-accent border-accent/40 bg-accent/10' },
+            'tool_master': { id: 'tool_master', title: 'Tool Master', icon: 'wrench', desc: 'Selected the perfect AI models for work', color: 'text-success border-success/40 bg-success/10' },
+            'smart_verifier': { id: 'smart_verifier', title: 'Smart Verifier', icon: 'shield-check', desc: 'Identified and debunked hallucinations', color: 'text-purple-400 border-purple-400/40 bg-purple-400/10' },
+            'treasure_hunter': { id: 'treasure_hunter', title: 'Treasure Hunter', icon: 'gem', desc: 'Crafted custom expert study assets', color: 'text-pink-400 border-pink-400/40 bg-pink-400/10' }
+        };
+
+        const milestones = [
+            { id: 0, title: 'Hero Launch', duration: 'Landing' },
+            { id: 1, title: 'Welcome Wall', duration: '0-10m' },
+            { id: 2, title: 'Icebreaker Activity', duration: '30s Quiz' },
+            { id: 3, title: '1. What is AI?', duration: '10-25m' },
+            { id: 4, title: '2. Generative AI', duration: '25-40m' },
+            { id: 5, title: '3. What is a Prompt?', duration: '40-60m' },
+            { id: 6, title: '4. Why Prompts Matter', duration: '60-75m' },
+            { id: 7, title: '5. AI Tools Showcase', duration: '75-95m' },
+            { id: 8, title: '6. AI Capabilities', duration: '95-110m' },
+            { id: 9, title: 'AI Treasure Hunt', duration: '110-117m' },
+            { id: 10, title: 'Mission Reflection', duration: '117-120m' },
+            { id: 11, title: 'Graduation Day 1', duration: 'End' }
+        ];
+
+        // Background canvas neural net animation
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.radius = Math.random() * 2 + 1;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = isDarkMode ? 'rgba(108, 99, 255, 0.3)' : 'rgba(108, 99, 255, 0.15)';
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle());
+            }
+        }
+        initParticles();
+
+        function animateBg() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            // Draw lines between nearby particles
+            ctx.strokeStyle = isDarkMode ? 'rgba(108, 99, 255, 0.08)' : 'rgba(108, 99, 255, 0.04)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dist = Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y);
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateBg);
+        }
+        animateBg();
+
+        // UI Gamified Systems
+        function addXP(amount) {
+            appState.xp += amount;
+            
+            // Recalculate level
+            const newLevel = Math.floor(appState.xp / 150) + 1;
+            if (newLevel > appState.level) {
+                appState.level = newLevel;
+                playSound('badge');
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+            } else {
+                playSound('success');
+            }
+
+            // Update UI elements
+            updateXPDisplay();
+            showXpToast(amount);
+        }
+
+        function showXpToast(amount) {
+            const toast = document.getElementById('xp-toast');
+            const toastAmount = document.getElementById('xp-toast-amount');
+            toastAmount.textContent = `+${amount} XP`;
+            toast.classList.remove('translate-x-72', 'opacity-0');
+            toast.classList.add('translate-x-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.add('translate-x-72', 'opacity-0');
+                toast.classList.remove('translate-x-0', 'opacity-100');
+            }, 3000);
+        }
+
+        function unlockBadge(badgeId) {
+            if (!appState.unlockedBadges.includes(badgeId)) {
+                appState.unlockedBadges.push(badgeId);
+                playSound('badge');
+                confetti({
+                    particleCount: 80,
+                    spread: 60,
+                    colors: ['#6C63FF', '#00D4FF', '#FFB703']
+                });
+                renderBadgeShelf();
+                addXP(50); // Earning a badge grants 50 bonus XP
+            }
+        }
+
+        function updateXPDisplay() {
+            const xpDisplay = document.getElementById('xp-display');
+            const levelDisplay = document.getElementById('level-display');
+            
+            levelDisplay.textContent = appState.level;
+            xpDisplay.textContent = `${appState.xp} XP`;
+        }
+
+        function renderBadgeShelf() {
+            const shelf = document.getElementById('badge-shelf-header');
+            shelf.innerHTML = '';
+            appState.unlockedBadges.forEach(badgeId => {
+                const b = badgeDatabase[badgeId];
+                if (b) {
+                    const iconEl = document.createElement('div');
+                    iconEl.className = `p-1.5 rounded-lg border ${b.color} cursor-pointer hover:scale-110 transition-transform shadow-md`;
+                    iconEl.setAttribute('title', `${b.title} Badge: ${b.desc}`);
+                    iconEl.innerHTML = `<i data-lucide="${b.icon}" class="w-4 h-4"></i>`;
+                    shelf.appendChild(iconEl);
+                }
+            });
+            lucide.createIcons();
+        }
+
+        function renderSidebarProgress() {
+            const totalSteps = milestones.length;
+            const completedCount = Object.keys(appState.completedSteps).length;
+            const percentage = Math.round((completedCount / totalSteps) * 100);
+
+            document.getElementById('sidebar-progress-bar').style.width = `${percentage}%`;
+            document.getElementById('sidebar-percentage').textContent = `${percentage}% Complete`;
+            document.getElementById('sidebar-completed-count').textContent = `${completedCount}/${totalSteps} Steps`;
+        }
+
+        function renderSidebar() {
+            const listContainer = document.getElementById('mission-steps-list');
+            listContainer.innerHTML = '';
+
+            milestones.forEach((m, idx) => {
+                const isCurrent = appState.currentStep === idx;
+                const isCompleted = appState.completedSteps[idx];
+
+                let stepClass = 'flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer text-left ';
+                let indicatorClass = 'w-2.5 h-2.5 rounded-full ';
+
+                if (isCurrent) {
+                    stepClass += 'bg-primary/20 text-white font-semibold border-l-4 border-secondary shadow-lg';
+                    indicatorClass += 'bg-secondary animate-ping';
+                } else if (isCompleted) {
+                    stepClass += 'text-emerald-400 hover:bg-slate-900/30 dark:hover:bg-slate-900/40';
+                    indicatorClass += 'bg-emerald-500';
+                } else {
+                    stepClass += 'text-slate-400 hover:bg-slate-900/30 hover:text-slate-200';
+                    indicatorClass += 'bg-slate-700';
+                }
+
+                const item = document.createElement('button');
+                item.className = stepClass;
+                item.onclick = () => {
+                    playSound('click');
+                    navigateToStep(idx);
+                };
+                item.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <div class="${indicatorClass}"></div>
+                        <div>
+                            <div class="text-xs font-bold leading-none">${m.title}</div>
+                            <div class="text-[9px] text-slate-500 mt-1">${m.duration}</div>
+                        </div>
+                    </div>
+                `;
+                listContainer.appendChild(item);
+            });
+            renderSidebarProgress();
+        }
+
+        function navigateToStep(stepIndex) {
+            // Animate transition
+            const container = document.getElementById('slide-container');
+            container.classList.add('opacity-0', 'translate-y-4');
+            
+            setTimeout(() => {
+                appState.currentStep = stepIndex;
+                appState.completedSteps[stepIndex] = true;
+                
+                renderSlide();
+                renderSidebar();
+                
+                container.classList.remove('opacity-0', 'translate-y-4');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
+        }
+
+        // SLIDES DATA AND RENDERERS
+        function renderSlide() {
+            const container = document.getElementById('slide-container');
+            let contentHtml = '';
+
+            switch (appState.currentStep) {
+                case 0: // Hero Launch
+                    contentHtml = getHeroTemplate();
+                    break;
+                case 1: // Welcome Wall (0-10 Min)
+                    contentHtml = getWelcomeWallTemplate();
+                    break;
+                case 2: // Icebreaker (AI Around Us)
+                    contentHtml = getIcebreakerTemplate();
+                    // Start icebreaker timer if not already submitted
+                    if (!appState.icebreakerSubmitted) {
+                        startIcebreakerTimer();
+                    }
+                    break;
+                case 3: // Topic 1 (What is AI?)
+                    contentHtml = getTopic1Template();
+                    break;
+                case 4: // Topic 2 (What is Generative AI?)
+                    contentHtml = getTopic2Template();
+                    break;
+                case 5: // Topic 3 (What is a Prompt?)
+                    contentHtml = getTopic3Template();
+                    break;
+                case 6: // Topic 4 (Why Prompts Matter)
+                    contentHtml = getTopic4Template();
+                    break;
+                case 7: // Topic 5 (AI Tools for Students)
+                    contentHtml = getTopic5Template();
+                    break;
+                case 8: // Topic 6 (AI Capabilities & Limitations)
+                    contentHtml = getTopic6Template();
+                    break;
+                case 9: // AI Treasure Hunt (Final Activity)
+                    contentHtml = getTreasureHuntTemplate();
+                    break;
+                case 10: // Reflection & Closure
+                    contentHtml = getReflectionTemplate();
+                    break;
+                case 11: // Graduation day 1
+                    contentHtml = getGraduationTemplate();
+                    break;
+            }
+
+            container.innerHTML = contentHtml;
+            lucide.createIcons();
+        }
+
+        // LANDING SCREEN (STEP 0)
+        function getHeroTemplate() {
+            return `
+                <div class="flex flex-col items-center justify-center text-center py-8">
+                    <!-- Premium Badging -->
+                    <div class="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-1.5 mb-6 text-primary text-xs font-semibold uppercase tracking-wider animate-float">
+                        <i data-lucide="award" class="w-4 h-4"></i> Official Training Mission
+                    </div>
+                    
+                    <h1 class="text-5xl md:text-7xl font-black tracking-tight mb-4">
+                        AI PROMPT MASTER
+                    </h1>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-secondary to-accent mb-6">
+                        Meet Your AI Study Partner
+                    </h2>
+                    
+                    <p class="max-w-2xl text-slate-400 dark:text-slate-300 text-sm md:text-base leading-relaxed mb-10">
+                        Welcome, future prompt expert! Transform your college learning today. In this story-based training mission, you become an <strong>AI Explorer</strong>. You will learn to use cutting-edge models to draft perfect assignments, summarize materials, and supercharge your academic goals.
+                    </p>
+
+                    <!-- Feature Information Cards -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-4xl mb-12">
+                        <div class="glass-card p-5 rounded-2xl">
+                            <div class="text-accent mb-2"><i data-lucide="clock" class="w-6 h-6 mx-auto"></i></div>
+                            <div class="font-bold text-sm">Duration</div>
+                            <div class="text-xs text-slate-400">2 Hours Session</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-2xl">
+                            <div class="text-secondary mb-2"><i data-lucide="monitor" class="w-6 h-6 mx-auto"></i></div>
+                            <div class="font-bold text-sm">Mode</div>
+                            <div class="text-xs text-slate-400">Interactive Online</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-2xl">
+                            <div class="text-primary mb-2"><i data-lucide="bar-chart" class="w-6 h-6 mx-auto"></i></div>
+                            <div class="font-bold text-sm">Level</div>
+                            <div class="text-xs text-slate-400">Beginner Friendly</div>
+                        </div>
+                        <div class="glass-card p-5 rounded-2xl">
+                            <div class="text-emerald-400 mb-2"><i data-lucide="gift" class="w-6 h-6 mx-auto"></i></div>
+                            <div class="font-bold text-sm">Reward</div>
+                            <div class="text-xs text-slate-400">Certificate + Badges</div>
+                        </div>
+                    </div>
+
+                    <!-- CTA Button -->
+                    <button onclick="startMission()" class="bg-gradient-to-r from-primary to-secondary text-white font-extrabold text-lg px-8 py-4 rounded-2xl hover:scale-105 transition-all shadow-xl shadow-primary/30 flex items-center gap-3">
+                        Start Mission <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        function startMission() {
+            playSound('success');
+            unlockBadge('ai_explorer');
+            navigateToStep(1);
+        }
+
+        // SESSION OPENING (STEP 1)
+        function getWelcomeWallTemplate() {
+            let wordCloudHtml = '';
+            appState.wordCloud.forEach(w => {
+                const fontSizes = ['text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl'];
+                const colors = ['text-primary', 'text-secondary', 'text-accent', 'text-emerald-400', 'text-purple-400', 'text-pink-400'];
+                const fSize = fontSizes[Math.min(w.weight, fontSizes.length - 1)];
+                const fCol = colors[Math.floor(Math.random() * colors.length)];
+                wordCloudHtml += `<span class="${fSize} ${fCol} font-bold transition-all duration-300 transform hover:scale-110 cursor-pointer select-none">${w.text}</span> `;
+            });
+
+            return `
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 rounded-xl bg-primary/20 text-primary font-bold text-xs">Mission #1</span>
+                        <h2 class="text-3xl font-extrabold">Welcome to AI Prompt Master</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Dynamic Input card -->
+                        <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold mb-2 flex items-center gap-2">
+                                    <i data-lucide="user-plus" class="text-secondary w-5 h-5"></i> Enter the Hologram
+                                </h3>
+                                <p class="text-xs text-slate-400 mb-6">Everyone participates within the first 2 minutes. Secure your identity now.</p>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-400 mb-1">Your Full Name</label>
+                                        <input type="text" id="user-name-input" value="${appState.userName}" placeholder="e.g. Rahul Sharma" class="w-full bg-slate-900/60 dark:bg-slate-950 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-400 mb-1">Your Degree / Course</label>
+                                        <input type="text" id="user-course-input" value="${appState.userCourse}" placeholder="e.g. BCA First Year" class="w-full bg-slate-900/60 dark:bg-slate-950 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-400 mb-1">One word that comes to mind when you hear AI?</label>
+                                        <input type="text" id="user-word-input" placeholder="e.g. Futuristic" class="w-full bg-slate-900/60 dark:bg-slate-950 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary text-sm">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button onclick="submitWelcomeWall()" class="mt-6 w-full bg-primary hover:bg-primary/90 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                                <i data-lucide="send" class="w-4 h-4"></i> Submit & Gain +10 XP
+                            </button>
+                        </div>
+
+                        <!-- Dynamic Word Cloud output -->
+                        <div class="glass-card p-6 rounded-2xl flex flex-col">
+                            <h3 class="text-lg font-bold mb-1 flex items-center gap-2">
+                                <i data-lucide="cloud" class="text-accent w-5 h-5"></i> Dynamic Neural Word Cloud
+                            </h3>
+                            <p class="text-xs text-slate-400 mb-4">Live feedback generated from incoming student definitions across the campus.</p>
+                            
+                            <div class="flex-grow flex items-center justify-center flex-wrap gap-4 border border-white/5 bg-slate-950/20 dark:bg-slate-950/50 rounded-xl p-6 min-h-[220px]">
+                                ${wordCloudHtml}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4">
+                        <span class="text-xs text-slate-500">Day 1 Theme: Meet Your AI Study Partner</span>
+                        <button onclick="navigateToStep(2)" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 text-sm">
+                            Next Mission <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function submitWelcomeWall() {
+            const name = document.getElementById('user-name-input').value.trim();
+            const course = document.getElementById('user-course-input').value.trim();
+            const word = document.getElementById('user-word-input').value.trim();
+
+            if (!name || !course || !word) {
+                playSound('fail');
+                alert("Please fill in all details to claim your welcome reward!");
+                return;
+            }
+
+            appState.userName = name;
+            appState.userCourse = course;
+
+            // Add word to simulated live cloud
+            const existing = appState.wordCloud.find(w => w.text.toLowerCase() === word.toLowerCase());
+            if (existing) {
+                existing.weight += 2;
+            } else {
+                appState.wordCloud.push({ text: word, weight: 5 });
+            }
+
+            if (!appState.userWordSubmitted) {
+                appState.userWordSubmitted = true;
+                addXP(10);
+            } else {
+                playSound('success');
+            }
+
+            renderSlide();
+        }
+
+        // ICEBREAKER (STEP 2)
+        function getIcebreakerTemplate() {
+            return `
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between flex-wrap gap-4">
+                        <div class="flex items-center gap-3">
+                            <span class="p-2 rounded-xl bg-accent/20 text-accent font-bold text-xs">Icebreaker Activity</span>
+                            <h2 class="text-3xl font-extrabold">AI Around Us</h2>
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-900/80 px-4 py-2 border border-accent/20 rounded-xl">
+                            <i data-lucide="timer" class="text-accent animate-spin w-4 h-4"></i>
+                            <span class="text-sm font-bold text-accent" id="countdown-timer">${appState.icebreakerTimer} Seconds</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-secondary to-white mb-2">
+                            Without realizing it, where have you already used AI today?
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-6">Type where you noticed predictive recommendations, searches, or assists this morning.</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Answer Submission -->
+                            <div class="space-y-4">
+                                <textarea id="icebreaker-text" ${appState.icebreakerSubmitted ? 'disabled' : ''} placeholder="e.g. I watched Netflix recommendations, typed using Gboard swipe, used Google Maps route guidance..." class="w-full bg-slate-900/60 dark:bg-slate-950 border border-white/10 rounded-xl p-4 focus:outline-none focus:border-accent text-sm h-32 resize-none"></textarea>
+                                
+                                <button onclick="submitIcebreaker()" ${appState.icebreakerSubmitted ? 'disabled' : ''} class="w-full bg-accent hover:bg-accent/90 text-slate-950 font-black py-3.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                                    ${appState.icebreakerSubmitted ? 'Unlocked!' : 'Submit Ecosystem Entry (+20 XP)'}
+                                </button>
+                            </div>
+
+                            <!-- Interactive AI Ecosystem Infographic inside application -->
+                            <div class="border border-white/5 bg-slate-950/40 p-4 rounded-xl flex flex-col justify-between">
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">Your Everyday AI Infographic</h4>
+                                    <div class="grid grid-cols-2 gap-2 text-[11px]">
+                                        <div class="p-2.5 rounded-lg bg-slate-900 flex items-center gap-2 border border-white/5">
+                                            <i data-lucide="youtube" class="text-red-500 w-4 h-4"></i> YouTube Algorithmic Recs
+                                        </div>
+                                        <div class="p-2.5 rounded-lg bg-slate-900 flex items-center gap-2 border border-white/5">
+                                            <i data-lucide="instagram" class="text-pink-500 w-4 h-4"></i> Instagram Reels Feed
+                                        </div>
+                                        <div class="p-2.5 rounded-lg bg-slate-900 flex items-center gap-2 border border-white/5">
+                                            <i data-lucide="map" class="text-green-500 w-4 h-4"></i> Google Maps Routes
+                                        </div>
+                                        <div class="p-2.5 rounded-lg bg-slate-900 flex items-center gap-2 border border-white/5">
+                                            <i data-lucide="search" class="text-blue-500 w-4 h-4"></i> Google Search Intent
+                                        </div>
+                                        <div class="p-2.5 rounded-lg bg-slate-900 flex items-center gap-2 border border-white/5">
+                                            <i data-lucide="mic" class="text-purple-500 w-4 h-4"></i> Smart Voice Typing
+                                        </div>
+                                        <div class="p-2.5 rounded-lg bg-slate-900 flex items-center gap-2 border border-white/5">
+                                            <i data-lucide="tv" class="text-cyan-500 w-4 h-4"></i> Netflix Content Engine
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 p-3 rounded-lg bg-secondary/10 border border-secondary/20 text-center">
+                                    <span class="text-xs font-semibold text-secondary">Takeaway: AI is already an active, seamless layer in your daily life.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Highlight Revealed state once timer is up or user submits -->
+                    <div id="icebreaker-reveal" class="${appState.icebreakerSubmitted ? 'block' : 'hidden'} glass p-6 rounded-2xl border-l-4 border-emerald-500 animate-float">
+                        <div class="flex gap-4">
+                            <div class="p-3 rounded-xl bg-emerald-500/20 text-emerald-400">
+                                <i data-lucide="party-popper" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-lg text-emerald-400">Awesome Discovery!</h3>
+                                <p class="text-xs text-slate-300 mt-1">
+                                    From video recommenders to language models, your digital day is heavily augmented. You are not a spectator; you are already an AI system operator!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4">
+                        <button onclick="navigateToStep(1)" class="text-xs text-slate-500 hover:text-slate-300">Back to Welcome</button>
+                        <button onclick="navigateToStep(3)" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 text-sm">
+                            Next Mission <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startIcebreakerTimer() {
+            if (appState.icebreakerTimerInterval) clearInterval(appState.icebreakerTimerInterval);
+            appState.icebreakerTimerInterval = setInterval(() => {
+                appState.icebreakerTimer--;
+                const timerEl = document.getElementById('countdown-timer');
+                if (timerEl) {
+                    timerEl.textContent = `${appState.icebreakerTimer} Seconds`;
+                }
+                
+                if (appState.icebreakerTimer <= 0) {
+                    clearInterval(appState.icebreakerTimerInterval);
+                    autoCompleteIcebreaker();
+                }
+            }, 1000);
+        }
+
+        function submitIcebreaker() {
+            const txt = document.getElementById('icebreaker-text').value.trim();
+            if (!txt) {
+                playSound('fail');
+                alert("Type something before submission!");
+                return;
+            }
+            clearInterval(appState.icebreakerTimerInterval);
+            appState.icebreakerSubmitted = true;
+            addXP(20);
+            renderSlide();
+        }
+
+        function autoCompleteIcebreaker() {
+            appState.icebreakerSubmitted = true;
+            renderSlide();
+        }
+
+        // TOPIC 1 (STEP 3)
+        function getTopic1Template() {
+            const pollSelected = appState.pollSelected;
+
+            return `
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 rounded-xl bg-primary/20 text-primary font-bold text-xs">Topic 1</span>
+                        <h2 class="text-3xl font-extrabold">What is AI?</h2>
+                    </div>
+
+                    <!-- Challenge A: Human vs Machine -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-white mb-4">
+                            Human vs. Machine Challenge
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Question 1 -->
+                            <div class="p-4 bg-slate-900/50 rounded-xl border border-white/5">
+                                <div class="text-xs uppercase tracking-wider text-slate-400 font-bold mb-2">Scenario 1</div>
+                                <p class="text-sm font-semibold mb-3">If I ask a standard pocket calculator: <span class="text-accent">2 + 2 = ?</span></p>
+                                <button onclick="revealCalculator('num')" class="bg-primary/20 hover:bg-primary/30 border border-primary/30 px-4 py-2 rounded-lg text-xs font-bold w-full text-center">Reveal Answer</button>
+                                <div id="calculator-num-ans" class="hidden mt-3 p-3 bg-slate-950/80 rounded border-l-2 border-primary text-xs">
+                                    <strong>Result: 4</strong>. Traditional calculators follow fixed, hardcoded logical instructions. There is zero intuition here.
+                                </div>
+                            </div>
+
+                            <!-- Question 2 -->
+                            <div class="p-4 bg-slate-900/50 rounded-xl border border-white/5">
+                                <div class="text-xs uppercase tracking-wider text-slate-400 font-bold mb-2">Scenario 2</div>
+                                <p class="text-sm font-semibold mb-3">If I ask a pocket calculator: <span class="text-accent">Write a birthday wish for my friend.</span></p>
+                                <button onclick="revealCalculator('text')" class="bg-primary/20 hover:bg-primary/30 border border-primary/30 px-4 py-2 rounded-lg text-xs font-bold w-full text-center">Reveal Answer</button>
+                                <div id="calculator-text-ans" class="hidden mt-3 p-3 bg-slate-950/80 rounded border-l-2 border-primary text-xs">
+                                    <strong>Result: Cannot do this!</strong> A basic calculator does not learn conceptual patterns and cannot synthesize language dynamically.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Story Concept comparison -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="glass-card p-5 rounded-2xl border-l-4 border-amber-500">
+                            <h4 class="font-extrabold text-sm text-amber-500 uppercase tracking-widest mb-2">Student A: The Memorizer</h4>
+                            <p class="text-xs text-slate-300">
+                                Memorizes answers without understanding core concepts. If a slightly modified question appears in exams, Student A struggles because they cannot extrapolate.
+                            </p>
+                        </div>
+                        <div class="glass-card p-5 rounded-2xl border-l-4 border-teal-500">
+                            <h4 class="font-extrabold text-sm text-teal-500 uppercase tracking-widest mb-2">Student B: The Conceptualizer</h4>
+                            <p class="text-xs text-slate-300">
+                                Understands underlying principles and patterns. Generates creative, customized answers during exams. <strong>Artificial Intelligence acts like Student B.</strong>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Live Demo with Polling -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="terminal" class="text-secondary w-5 h-5"></i> Live AI Prompts Demo</h3>
+                        
+                        <div class="space-y-4 text-xs">
+                            <div class="p-3 bg-slate-900/80 rounded-xl">
+                                <div class="font-bold text-accent mb-1">Prompt 1: "Write a birthday wish"</div>
+                                <div class="text-slate-300 italic">"Happy birthday! Wishing you a fantastic year filled with joy, laughter, and success."</div>
+                            </div>
+                            
+                            <div class="p-3 bg-slate-900/80 rounded-xl">
+                                <div class="font-bold text-secondary mb-1">Prompt 2: "Write a funny birthday wish for my best friend who loves cricket"</div>
+                                <div class="text-slate-300 italic">"Happy birthday buddy! May your year have fewer ducks and more sixes than last season. Remember, you're not getting older, you're just extending your test match innings! Don't run out of cake before I arrive!"</div>
+                            </div>
+                        </div>
+
+                        <!-- Interactive Poll -->
+                        <div class="mt-6 border-t border-white/5 pt-4">
+                            <h4 class="text-sm font-bold mb-3">Interactive Poll: What changed between Prompt 1 and Prompt 2?</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <button onclick="selectPoll('detailed')" class="p-3 rounded-xl border text-left transition-all ${pollSelected === 'detailed' ? 'bg-secondary/20 border-secondary text-white font-bold' : 'bg-slate-900/40 border-white/5 hover:border-slate-500'}">
+                                    More detailed
+                                </button>
+                                <button onclick="selectPoll('personalized')" class="p-3 rounded-xl border text-left transition-all ${pollSelected === 'personalized' ? 'bg-secondary/20 border-secondary text-white font-bold' : 'bg-slate-900/40 border-white/5 hover:border-slate-500'}">
+                                    More personalized
+                                </button>
+                                <button onclick="selectPoll('useful')" class="p-3 rounded-xl border text-left transition-all ${pollSelected === 'useful' ? 'bg-secondary/20 border-secondary text-white font-bold' : 'bg-slate-900/40 border-white/5 hover:border-slate-500'}">
+                                    More useful
+                                </button>
+                            </div>
+
+                            <!-- Animated Mock Analytics Poll results -->
+                            <div class="mt-4 space-y-2 p-4 bg-slate-950/30 rounded-xl ${pollSelected ? 'block' : 'hidden'}">
+                                <div class="text-xs font-bold uppercase text-slate-400">Class Votes (Simulated Live Feedback):</div>
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1"><span>More detailed</span> <span>25%</span></div>
+                                    <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div class="bg-primary h-full" style="width: 25%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1"><span>More personalized</span> <span>65%</span></div>
+                                    <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div class="bg-secondary h-full" style="width: 65%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1"><span>More useful</span> <span>10%</span></div>
+                                    <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden"><div class="bg-accent h-full" style="width: 10%"></div></div>
+                                </div>
+                                <div class="text-xs font-bold text-accent mt-3">Learning Point: Better, contextual instructions directly output superior, customized results.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI or Not AI Mini Game -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold mb-2 flex items-center gap-2">
+                            <i data-lucide="gamepad-2" class="text-accent w-5 h-5"></i> Mini-Quiz: AI or NOT AI?
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-4">Determine which of these technologies uses internal machine learning loops.</p>
+
+                        <div class="space-y-3">
+                            <div class="flex flex-wrap items-center justify-between p-3 bg-slate-900/40 rounded-xl gap-4">
+                                <span class="text-sm font-semibold">1. Standard Pocket Calculator</span>
+                                <div class="flex gap-2">
+                                    <button onclick="answerQuiz('q1', 'not')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700" id="btn-q1-not">NOT AI</button>
+                                    <button onclick="answerQuiz('q1', 'ai')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700" id="btn-q1-ai">AI</button>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap items-center justify-between p-3 bg-slate-900/40 rounded-xl gap-4">
+                                <span class="text-sm font-semibold">2. iPhone Face Unlock (FaceID)</span>
+                                <div class="flex gap-2">
+                                    <button onclick="answerQuiz('q2', 'not')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700" id="btn-q2-not">NOT AI</button>
+                                    <button onclick="answerQuiz('q2', 'ai')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700" id="btn-q2-ai">AI</button>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap items-center justify-between p-3 bg-slate-900/40 rounded-xl gap-4">
+                                <span class="text-sm font-semibold">3. Netflix Recommendation Algorithm</span>
+                                <div class="flex gap-2">
+                                    <button onclick="answerQuiz('q3', 'not')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700" id="btn-q3-not">NOT AI</button>
+                                    <button onclick="answerQuiz('q3', 'ai')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700" id="btn-q3-ai">AI</button>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap items-center justify-between p-3 bg-slate-900/40 rounded-xl gap-4">
+                                <span class="text-sm font-semibold">4. System Alarm Clock App</span>
+                                <div class="flex gap-2">
+                                    <button onclick="answerQuiz('q4', 'not')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700" id="btn-q4-not">NOT AI</button>
+                                    <button onclick="answerQuiz('q4', 'ai')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700" id="btn-q4-ai">AI</button>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap items-center justify-between p-3 bg-slate-900/40 rounded-xl gap-4">
+                                <span class="text-sm font-semibold">5. Google Translate</span>
+                                <div class="flex gap-2">
+                                    <button onclick="answerQuiz('q5', 'not')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700" id="btn-q5-not">NOT AI</button>
+                                    <button onclick="answerQuiz('q5', 'ai')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700" id="btn-q5-ai">AI</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4">
+                        <button onclick="navigateToStep(2)" class="text-xs text-slate-500 hover:text-slate-300">Back</button>
+                        <button onclick="navigateToStep(4)" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 text-sm">
+                            Next Mission <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function revealCalculator(type) {
+            playSound('click');
+            document.getElementById(`calculator-${type}-ans`).classList.toggle('hidden');
+        }
+
+        function selectPoll(option) {
+            appState.pollSelected = option;
+            addXP(10);
+            renderSlide();
+        }
+
+        function answerQuiz(qKey, chosenVal) {
+            const keys = {
+                q1: 'not',
+                q2: 'ai',
+                q3: 'ai',
+                q4: 'not',
+                q5: 'ai'
+            };
+
+            const isCorrect = keys[qKey] === chosenVal;
+            const btnNot = document.getElementById(`btn-${qKey}-not`);
+            const btnAi = document.getElementById(`btn-${qKey}-ai`);
+
+            if (isCorrect) {
+                playSound('success');
+                if (chosenVal === 'not') {
+                    btnNot.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white";
+                    btnAi.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-800/20 text-slate-600";
+                } else {
+                    btnAi.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white";
+                    btnNot.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-800/20 text-slate-600";
+                }
+
+                // Add XP if not already answered
+                if (!appState.quizAnswers[qKey]) {
+                    appState.quizAnswers[qKey] = true;
+                    addXP(10);
+                }
+            } else {
+                playSound('fail');
+                if (chosenVal === 'not') {
+                    btnNot.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-red-500 text-white";
+                } else {
+                    btnAi.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-red-500 text-white";
+                }
+            }
+        }
+
+        // TOPIC 2 (STEP 4)
+        function getTopic2Template() {
+            return `
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 rounded-xl bg-primary/20 text-primary font-bold text-xs">Topic 2</span>
+                        <h2 class="text-3xl font-extrabold">What is Generative AI?</h2>
+                    </div>
+
+                    <!-- Conceptual introduction -->
+                    <div class="glass p-6 rounded-2xl flex gap-4 items-start">
+                        <div class="p-3 rounded-2xl bg-secondary/10 text-secondary hidden sm:block animate-float">
+                            <i data-lucide="sparkle" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">What happens when you ask ChatGPT: <span class="text-accent">"Write a poem about friendship"</span>?</h3>
+                            <p class="text-sm text-slate-300 mb-4">
+                                It doesn't search through Google indexes, scan public libraries, and copy-paste an existing poem. Instead, it predicts sequences of words to compose an entirely unique response.
+                            </p>
+                            <div class="inline-block p-3.5 bg-secondary/10 border border-secondary/20 rounded-xl text-xs font-semibold text-secondary">
+                                💡 Definition: Generative AI creates novel outputs (text, images, codes) based on statistical language patterns learned during large-scale training.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Generator Showcase -->
+                    <h3 class="text-lg font-bold mb-2">The Multi-Modality Universe</h3>
+                    <p class="text-xs text-slate-400">Hover or click below to discover the vast range of generative assets:</p>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="glass-card p-4 rounded-xl text-center">
+                            <div class="p-2.5 bg-primary/10 rounded-xl inline-block text-primary mb-2"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+                            <div class="font-bold text-xs">Text & Copy</div>
+                            <div class="text-[10px] text-slate-400 mt-1">Essays, Summaries</div>
+                        </div>
+                        <div class="glass-card p-4 rounded-xl text-center">
+                            <div class="p-2.5 bg-secondary/10 rounded-xl inline-block text-secondary mb-2"><i data-lucide="image" class="w-5 h-5"></i></div>
+                            <div class="font-bold text-xs">Images & Art</div>
+                            <div class="text-[10px] text-slate-400 mt-1">Visuals, Mockups</div>
+                        </div>
+                        <div class="glass-card p-4 rounded-xl text-center">
+                            <div class="p-2.5 bg-accent/10 rounded-xl inline-block text-accent mb-2"><i data-lucide="code" class="w-5 h-5"></i></div>
+                            <div class="font-bold text-xs">Functional Code</div>
+                            <div class="text-[10px] text-slate-400 mt-1">HTML, Python</div>
+                        </div>
+                        <div class="glass-card p-4 rounded-xl text-center">
+                            <div class="p-2.5 bg-emerald-500/10 rounded-xl inline-block text-emerald-400 mb-2"><i data-lucide="presentation" class="w-5 h-5"></i></div>
+                            <div class="font-bold text-xs">Presentations</div>
+                            <div class="text-[10px] text-slate-400 mt-1">Outline Structures</div>
+                        </div>
+                    </div>
+
+                    <!-- Live Demonstration Comparison -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold mb-4">Prompt Depth Live Demo</h3>
+
+                        <!-- Interactive Prediction Challenge -->
+                        <div id="prediction-wrapper" class="p-4 bg-slate-900/60 rounded-xl mb-4 border border-white/5">
+                            <h4 class="text-xs font-extrabold uppercase text-accent tracking-wider mb-2 flex items-center gap-1.5">
+                                <i data-lucide="dices" class="w-4 h-4"></i> Prior Prediction Challenge
+                            </h4>
+                            <p class="text-[11px] text-slate-400 mb-3">Before generating, which of the options below do you expect will change when we add student persona parameters?</p>
+                            
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="selectPrediction('funny')" id="pred-funny" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold">Humorous Slang</button>
+                                <button onclick="selectPrediction('academic')" id="pred-academic" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold">Exam-Targeted Tips</button>
+                                <button onclick="selectPrediction('concise')" id="pred-concise" class="bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold">Super Concise Flow</button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5">
+                                <div class="font-bold text-primary mb-2 uppercase tracking-wide text-[10px]">Level 1: Basic</div>
+                                <div class="text-slate-400 italic mb-2">"Write a motivational quote"</div>
+                                <div class="p-2.5 bg-slate-950/50 rounded text-slate-300">
+                                    "Success is not final, failure is not fatal: it is the courage to continue that counts."
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5">
+                                <div class="font-bold text-secondary mb-2 uppercase tracking-wide text-[10px]">Level 2: Targeted</div>
+                                <div class="text-slate-400 italic mb-2">"Write a motivational quote for BCA students preparing for exams"</div>
+                                <div class="p-2.5 bg-slate-950/50 rounded text-slate-300">
+                                    "Your compilers don't expect miracles, they expect logical structure. Write clear code, debug with focus, and construct your BCA career step-by-step!"
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5">
+                                <div class="font-bold text-accent mb-2 uppercase tracking-wide text-[10px]">Level 3: Expert Personified</div>
+                                <div class="text-slate-400 italic mb-2">"Write a humorous motivational quote for BCA students preparing for exams"</div>
+                                <div class="p-2.5 bg-slate-950/50 rounded text-slate-300">
+                                    "May your exams have fewer runtime bugs than your first-semester database projects. Remember, even standard chat engines need precise prompt configurations. Revise your variables and compile with absolute glory!"
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4">
+                        <button onclick="navigateToStep(3)" class="text-xs text-slate-500 hover:text-slate-300">Back</button>
+                        <button onclick="navigateToStep(5)" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 text-sm">
+                            Next Mission <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectPrediction(type) {
+            playSound('success');
+            const btn = document.getElementById(`pred-${type}`);
+            btn.className = "bg-accent text-slate-950 px-3 py-1.5 rounded-lg text-xs font-black shadow-lg shadow-accent/20";
+            addXP(15);
+            unlockBadge('generative_genius');
+        }
+
+        // TOPIC 3 (STEP 5)
+        function getTopic3Template() {
+            return `
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 rounded-xl bg-primary/20 text-primary font-bold text-xs">Topic 3</span>
+                        <h2 class="text-3xl font-extrabold">What is a Prompt?</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Direct Comparison Card -->
+                        <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                                    <i data-lucide="arrow-left-right" class="text-secondary w-5 h-5"></i> Intent vs Keyword Search
+                                </h3>
+                                
+                                <div class="space-y-4 text-sm">
+                                    <div class="p-3 bg-slate-900/40 rounded-xl border border-white/5">
+                                        <div class="font-bold text-slate-400 text-xs uppercase mb-1">When using Google Search:</div>
+                                        <div class="text-slate-300 font-mono">You search with <span class="text-accent font-bold">Keywords</span> (e.g. "Java syntax loops")</div>
+                                    </div>
+                                    <div class="p-3 bg-slate-900/40 rounded-xl border border-white/5">
+                                        <div class="font-bold text-slate-400 text-xs uppercase mb-1">When using ChatGPT / AI models:</div>
+                                        <div class="text-slate-300 font-mono">You use <span class="text-secondary font-bold">Questions / Instructions</span> (e.g. "Explain loops in Java to a first year BCA student with a simple real-life model")</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 p-4 bg-primary/10 border border-primary/20 rounded-xl text-xs font-semibold text-primary">
+                                🚀 A Prompt is anything you tell the AI model to do. Better structure means accurate answers.
+                            </div>
+                        </div>
+
+                        <!-- Live Compare Prompt A vs B -->
+                        <div class="glass-card p-6 rounded-2xl">
+                            <h3 class="text-lg font-bold mb-4">Live Prompt Execution Comparison</h3>
+
+                            <div class="space-y-4">
+                                <button onclick="toggleComparePrompt()" class="w-full bg-slate-800 hover:bg-slate-700 py-2.5 rounded-xl text-xs font-bold transition-all">
+                                    Click to Compare Outputs
+                                </button>
+
+                                <div id="compare-pane-wrapper" class="hidden grid grid-cols-1 gap-3 text-xs">
+                                    <div class="p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+                                        <div class="font-bold text-red-400 mb-1">Prompt A: "Explain Java"</div>
+                                        <p class="text-[11px] text-slate-300">"Java is a high-level, class-based, object-oriented programming language designed to have as few implementation dependencies as possible..."</p>
+                                    </div>
+                                    <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                                        <div class="font-bold text-emerald-400 mb-1">Prompt B: "Explain Java for 1st-year BCA students using simple language & examples"</div>
+                                        <p class="text-[11px] text-slate-300">"Think of Java like writing a recipe. Once written (compiled), any chef (OS) with the right tools can replicate your dish perfectly. This is called 'Write Once, Run Anywhere'!"</p>
+                                    </div>
+                                    
+                                    <!-- Dynamic Poll / Vote -->
+                                    <div class="mt-2 p-3 bg-slate-900 rounded-xl text-center">
+                                        <span class="block text-xs font-bold mb-2">Which output helps more in college exams?</span>
+                                        <div class="flex gap-2 justify-center">
+                                            <button onclick="votePrompt('A')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg font-bold">Output A</button>
+                                            <button onclick="votePrompt('B')" class="px-3 py-1.5 bg-secondary text-slate-950 hover:bg-secondary/90 text-xs rounded-lg font-black">Output B</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prompt Improvement Challenge Panel -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent to-white mb-2 flex items-center gap-2">
+                            <i data-lucide="shield-alert" class="text-accent w-6 h-6 animate-pulse-slow"></i> Prompt Improvement Challenge
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-6">Below are 4 generic, weak student prompts. Select a topic, rewrite it into an expert prompt, and have our simulated AI evaluate your structure!</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                            <button onclick="selectChallengeTopic('python')" id="btn-topic-python" class="p-4 bg-slate-900/60 rounded-xl text-left border border-white/5 hover:border-primary transition-all">
+                                <span class="block text-[10px] text-slate-500 font-bold uppercase">Topic 1</span>
+                                <span class="font-bold text-xs">Tell me about Python</span>
+                            </button>
+                            <button onclick="selectChallengeTopic('networking')" id="btn-topic-networking" class="p-4 bg-slate-900/60 rounded-xl text-left border border-white/5 hover:border-primary transition-all">
+                                <span class="block text-[10px] text-slate-500 font-bold uppercase">Topic 2</span>
+                                <span class="font-bold text-xs">Explain Networking</span>
+                            </button>
+                            <button onclick="selectChallengeTopic('notes')" id="btn-topic-notes" class="p-4 bg-slate-900/60 rounded-xl text-left border border-white/5 hover:border-primary transition-all">
+                                <span class="block text-[10px] text-slate-500 font-bold uppercase">Topic 3</span>
+                                <span class="font-bold text-xs">Give Notes</span>
+                            </button>
+                            <button onclick="selectChallengeTopic('assignment')" id="btn-topic-assignment" class="p-4 bg-slate-900/60 rounded-xl text-left border border-white/5 hover:border-primary transition-all">
+                                <span class="block text-[10px] text-slate-500 font-bold uppercase">Topic 4</span>
+                                <span class="font-bold text-xs">Create Assignment</span>
+                            </button>
+                        </div>
+
+                        <!-- Prompt input form area -->
+                        <div id="challenge-editor" class="hidden p-5 bg-slate-950/60 border border-white/10 rounded-xl space-y-4">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-xs font-bold text-secondary uppercase tracking-wider">Active Workspace Editor</h4>
+                                <span id="editor-topic-label" class="text-xs font-bold bg-primary/20 px-2.5 py-1 rounded text-primary">Python</span>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Original Bad Prompt:</label>
+                                <div id="editor-bad-prompt" class="font-mono text-xs text-red-400 italic p-2.5 bg-slate-900 rounded border border-red-500/10"></div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Your Improved Prompt (Include Target Audience, Context, Desired Format):</label>
+                                <textarea id="editor-improved-prompt" placeholder="e.g. Explain Python syntax fundamentals for a BCA student with zero programming knowledge. Include code comments and a final summary chart." class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 focus:outline-none focus:border-secondary text-xs h-24 resize-none"></textarea>
+                            </div>
+
+                            <button onclick="runPromptEvaluation()" class="bg-gradient-to-r from-primary to-secondary text-white font-bold px-6 py-2.5 rounded-xl hover:scale-105 transition-all text-xs flex items-center gap-2">
+                                <i data-lucide="play" class="w-3.5 h-3.5"></i> Evaluate Prompt Structure
+                            </button>
+
+                            <!-- Score feedback panel -->
+                            <div id="evaluation-result-panel" class="hidden p-4 rounded-xl border">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold uppercase" id="eval-header">Simulated Score</span>
+                                    <span class="text-lg font-black" id="eval-score">0/100</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mb-3">
+                                    <div class="h-full bg-emerald-500" id="eval-progress" style="width: 0%"></div>
+                                </div>
+                                <p class="text-xs text-slate-300" id="eval-feedback"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4">
+                        <button onclick="navigateToStep(4)" class="text-xs text-slate-500 hover:text-slate-300">Back</button>
+                        <button onclick="navigateToStep(6)" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 text-sm">
+                            Next Mission <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleComparePrompt() {
+            playSound('click');
+            document.getElementById('compare-pane-wrapper').classList.toggle('hidden');
+        }
+
+        function votePrompt(choice) {
+            playSound('success');
+            addXP(10);
+            alert(`Thanks for voting for Output ${choice}! Specific parameters produce superior learning guides.`);
+        }
+
+        let selectedChallengeTopicId = '';
+        const challengeMetadata = {
+            python: { bad: "Tell me about Python", cleanLabel: "Python Guide Builder" },
+            networking: { bad: "Explain Networking", cleanLabel: "Networking Concept Explainer" },
+            notes: { bad: "Give Notes", cleanLabel: "Study Notes Generator" },
+            assignment: { bad: "Create Assignment", cleanLabel: "Assignment Outliner" }
+        };
+
+        function selectChallengeTopic(topicId) {
+            playSound('click');
+            selectedChallengeTopicId = topicId;
+            
+            // Highlight button
+            ['python', 'networking', 'notes', 'assignment'].forEach(t => {
+                const b = document.getElementById(`btn-topic-${t}`);
+                if (t === topicId) {
+                    b.className = "p-4 bg-primary/20 rounded-xl text-left border-2 border-primary transition-all";
+                } else {
+                    b.className = "p-4 bg-slate-900/60 rounded-xl text-left border border-white/5 hover:border-primary transition-all";
+                }
+            });
+
+            // Update editor layout
+            const meta = challengeMetadata[topicId];
+            document.getElementById('editor-topic-label').textContent = meta.cleanLabel;
+            document.getElementById('editor-bad-prompt').textContent = meta.bad;
+            document.getElementById('editor-improved-prompt').value = appState.promptsRewritten[topicId] || '';
+            document.getElementById('challenge-editor').classList.remove('hidden');
+            document.getElementById('evaluation-result-panel').classList.add('hidden');
+        }
+
+        function runPromptEvaluation() {
+            const promptInput = document.getElementById('editor-improved-prompt').value.trim();
+            if (promptInput.length < 15) {
+                playSound('fail');
+                alert("Prompt is too brief. Try including target audience, style templates, and format indicators.");
+                return;
+            }
+
+            // Simple algorithmic structure evaluator
+            let score = 40;
+            let tips = [];
+
+            // Check for keywords indicating high prompt engineering structure
+            if (promptInput.toLowerCase().includes('bca') || promptInput.toLowerCase().includes('student') || promptInput.toLowerCase().includes('beginner')) {
+                score += 15;
+            } else {
+                tips.push("Add a specific audience context (e.g. 'for first-year BCA students').");
+            }
+
+            if (promptInput.toLowerCase().includes('format') || promptInput.toLowerCase().includes('table') || promptInput.toLowerCase().includes('bullet') || promptInput.toLowerCase().includes('summary')) {
+                score += 15;
+            } else {
+                tips.push("Specify your target output format structure (e.g. 'include a summary table' or 'use structured bullet points').");
+            }
+
+            if (promptInput.toLowerCase().includes('example') || promptInput.toLowerCase().includes('analogy') || promptInput.toLowerCase().includes('scenario')) {
+                score += 15;
+            } else {
+                tips.push("Ask the model to explain using analogies or real-world scenarios.");
+            }
+
+            if (promptInput.length > 80) {
+                score += 15;
+            }
+
+            score = Math.min(score, 100);
+
+            // Save results to appState
+            appState.promptsRewritten[selectedChallengeTopicId] = promptInput;
+            appState.promptEvaluations[selectedChallengeTopicId] = {
+                score: score,
+                feedback: tips.length > 0 ? `Good start! Try this for full marks: ${tips.join(' ')}` : "Excellent job! Your prompt is highly structured and professional."
+            };
+
+            // Display
+            const resultPanel = document.getElementById('evaluation-result-panel');
+            const header = document.getElementById('eval-header');
+            const scoreDisplay = document.getElementById('eval-score');
+            const progress = document.getElementById('eval-progress');
+            const feedback = document.getElementById('eval-feedback');
+
+            resultPanel.classList.remove('hidden');
+            scoreDisplay.textContent = `${score}/100`;
+            progress.style.width = `${score}%`;
+            feedback.textContent = appState.promptEvaluations[selectedChallengeTopicId].feedback;
+
+            if (score >= 80) {
+                header.textContent = "Evaluation: Expert Structure!";
+                header.className = "text-xs font-bold uppercase text-emerald-400";
+                resultPanel.className = "p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10";
+                unlockBadge('prompt_detective');
+            } else {
+                header.textContent = "Evaluation: Needs Tuning";
+                header.className = "text-xs font-bold uppercase text-amber-400";
+                resultPanel.className = "p-4 rounded-xl border border-amber-500/30 bg-amber-500/10";
+                playSound('success');
+            }
+
+            addXP(25);
+        }
+
+        // TOPIC 4 (STEP 6)
+        function getTopic4Template() {
+            const tea = appState.teaSelection;
+            
+            // Build live prompt dynamic template
+            const badPromptStr = "Make Tea";
+            const goodPromptStr = `Make two cups of ${tea.type === 'masala' ? 'masala' : 'regular'} tea with ${tea.sugar} sugar for ${tea.audience}. ${tea.milk === 'yes' ? 'Include milk' : 'No milk'}.`;
+
+            return `
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 rounded-xl bg-primary/20 text-primary font-bold text-xs">Topic 4</span>
+                        <h2 class="text-3xl font-extrabold">Why Prompts Matter</h2>
+                    </div>
+
+                    <!-- Tea Simulator Card -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent to-white mb-2">
+                            The Interactive Tea Simulator
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-6">
+                            Imagine asking someone to "Make Tea" without any context. They are likely to make mistakes. Let's tweak parameters dynamically below and watch the prompt formulate:
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Configurations -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Tea Style:</label>
+                                    <div class="flex gap-2">
+                                        <button onclick="updateTea('type', 'standard')" class="px-3 py-1.5 rounded-lg text-xs ${tea.type === 'standard' ? 'bg-primary text-white font-bold' : 'bg-slate-900'}">Standard</button>
+                                        <button onclick="updateTea('type', 'masala')" class="px-3 py-1.5 rounded-lg text-xs ${tea.type === 'masala' ? 'bg-primary text-white font-bold' : 'bg-slate-900'}">Masala Tea</button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Cups Required:</label>
+                                    <input type="range" min="1" max="10" value="${tea.cups}" oninput="updateTea('cups', this.value)" class="w-full accent-primary">
+                                    <span class="text-xs text-slate-400">Cups: <strong class="text-white">${tea.cups}</strong></span>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Sugar Level:</label>
+                                    <div class="flex gap-2">
+                                        <button onclick="updateTea('sugar', 'low')" class="px-3 py-1.5 rounded-lg text-xs ${tea.sugar === 'low' ? 'bg-secondary text-slate-950 font-bold' : 'bg-slate-900'}">Low</button>
+                                        <button onclick="updateTea('sugar', 'medium')" class="px-3 py-1.5 rounded-lg text-xs ${tea.sugar === 'medium' ? 'bg-secondary text-slate-950 font-bold' : 'bg-slate-900'}">Medium</button>
+                                        <button onclick="updateTea('sugar', 'high')" class="px-3 py-1.5 rounded-lg text-xs ${tea.sugar === 'high' ? 'bg-secondary text-slate-950 font-bold' : 'bg-slate-900'}">High</button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">Target Audience:</label>
+                                    <div class="flex gap-2">
+                                        <button onclick="updateTea('audience', 'family')" class="px-3 py-1.5 rounded-lg text-xs ${tea.audience === 'family' ? 'bg-accent text-slate-950 font-bold' : 'bg-slate-900'}">Family</button>
+                                        <button onclick="updateTea('audience', 'guests')" class="px-3 py-1.5 rounded-lg text-xs ${tea.audience === 'guests' ? 'bg-accent text-slate-950 font-bold' : 'bg-slate-900'}">Guests</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Formulated result display -->
+                            <div class="bg-slate-950/60 rounded-xl p-5 border border-white/5 flex flex-col justify-between">
+                                <div class="space-y-4">
+                                    <div>
+                                        <span class="block text-[10px] text-red-400 uppercase tracking-widest font-extrabold">Bad Prompt Version</span>
+                                        <div class="font-mono text-sm bg-slate-900 p-2 rounded mt-1">${badPromptStr}</div>
+                                    </div>
+                                    <div>
+                                        <span class="block text-[10px] text-emerald-400 uppercase tracking-widest font-extrabold">Formulated Expert Prompt</span>
+                                        <div class="font-mono text-xs bg-slate-900 p-3 rounded mt-1 text-slate-100">${goodPromptStr}</div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-xs text-slate-400 border-t border-white/5 pt-3">
+                                    💡 <strong>Notice:</strong> Your AI partner produces precise output only when parameters match your dynamic context.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Software Engineering comparison side by side -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold mb-3">Academic Real-Life Comparison</h3>
+                        <p class="text-xs text-slate-400 mb-4">Click and drag slider or look closely at how output structure upgrades between these prompt methods:</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div class="p-4 bg-slate-900/40 rounded-xl border border-red-500/10">
+                                <div class="font-bold text-red-400 uppercase mb-2">Prompt A: "Create notes on Software Engineering"</div>
+                                <div class="p-3 bg-slate-950/80 rounded italic text-slate-400">
+                                    "Software Engineering is an engineering branch associated with development of software product using well-defined scientific principles..." (Standard generalized dictionary notes)
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-slate-900/40 rounded-xl border border-emerald-500/10">
+                                <div class="font-bold text-emerald-400 uppercase mb-2">Prompt B: "Create exam-oriented notes on Software Engineering for BCA students. Include definitions, examples, and a summary table."</div>
+                                <div class="p-3 bg-slate-950/80 rounded text-slate-300">
+                                    <strong class="text-white">Exam Overview Checklist:</strong>
+                                    <ul class="list-disc ml-4 space-y-1 my-1">
+                                        <li>SDLC Phase Overview</li>
+                                        <li>Waterfall vs. Agile breakdown</li>
+                                    </ul>
+                                    <div class="mt-2 bg-slate-900 p-1.5 rounded border border-white/5">
+                                        <div class="font-bold text-[10px] text-accent">Summary Table Injected</div>
+                                        <div class="text-[9px] text-slate-400">Phase | Key Output | Deliverable</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Learning Formula Animation -->
+                    <div class="p-6 glass rounded-2xl text-center">
+                        <div class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Prompt Engineering Formula</div>
+                        <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+                            <div class="p-3 bg-red-500/10 border border-red-500/20 rounded-xl w-full sm:w-48">
+                                <div class="font-black text-red-400">Bad Prompt</div>
+                                <div class="text-[10px] text-slate-400">Generic Output</div>
+                            </div>
+                            <div class="text-slate-500 font-extrabold">&rarr;</div>
+                            <div class="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl w-full sm:w-48">
+                                <div class="font-black text-amber-400">Good Prompt</div>
+                                <div class="text-[10px] text-slate-400">Better Output</div>
+                            </div>
+                            <div class="text-slate-500 font-extrabold">&rarr;</div>
+                            <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl w-full sm:w-48">
+                                <div class="font-black text-emerald-400">Excellent Prompt</div>
+                                <div class="text-[10px] text-slate-400">Excellent Output</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4">
+                        <button onclick="navigateToStep(5)" class="text-xs text-slate-500 hover:text-slate-300">Back</button>
+                        <button onclick="navigateToStep(7)" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 text-sm">
+                            Next Mission <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateTea(key, val) {
+            appState.teaSelection[key] = val;
+            playSound('click');
+            renderSlide();
+        }
+
+        // TOPIC 5 (STEP 7)
+        function getTopic5Template() {
+            const tools = [
+                { id: 'chatgpt', name: 'ChatGPT', desc: 'Learning and explanations', features: ['Concept simplification', 'Language synthesis', 'Personal tutor'], advantages: 'Massive knowledge graph, rapid responses', cases: 'Understanding tricky theory concepts like normalization or OS threads.', icon: 'message-square' },
+                { id: 'gemini', name: 'Gemini', desc: 'Research and Google ecosystem', features: ['Real-time search parameters', 'Docs integration', 'File uploads'], advantages: 'Direct connection to active Google ecosystems and maps', cases: 'Finding recent scientific papers, summarizing research documents on web trends.', icon: 'globe' },
+                { id: 'copilot', name: 'Copilot', desc: 'Coding support', features: ['Autocompleting functions', 'Syntax debugger', 'Explain code errors'], advantages: 'Highly tuned compiler instructions & clean structural notes', cases: 'Solving runtime bugs in Java, autocompleting Python array sequences.', icon: 'code-2' },
+                { id: 'notebooklm', name: 'NotebookLM', desc: 'PDF and study assistant', features: ['PDF-focused vector loops', 'Creates audio briefings', 'Generates quiz questions'], advantages: 'Zero hallucinations inside uploaded study PDFs', cases: 'Ingesting massive academic textbooks to generate instant study guides.', icon: 'book-open' },
+                { id: 'perplexity', name: 'Perplexity', desc: 'Research with references', features: ['Web-scoped citing', 'Source attribution', 'Dynamic querying'], advantages: 'Cites exact URL sources for every single claim made', cases: 'Writing bibliography papers, checking structural statistics.', icon: 'search' }
+            ];
+
+            const currentTool = tools[appState.selectedToolIndex];
+
+            return `
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 rounded-xl bg-primary/20 text-primary font-bold text-xs">Topic 5</span>
+                        <h2 class="text-3xl font-extrabold">AI Tools for Students</h2>
+                    </div>
+
+                    <!-- Tool cards carousel display -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Navigation sidebar for tools -->
+                        <div class="glass-card p-4 rounded-2xl flex flex-col gap-2">
+                            <h3 class="text-xs uppercase tracking-widest font-extrabold text-slate-400 mb-2">Student Toolbelt</h3>
+                            ${tools.map((t, idx) => `
+                                <button onclick="selectToolIndex(${idx})" class="w-full text-left p-3 rounded-xl transition-all flex items-center gap-3 ${idx === appState.selectedToolIndex ? 'bg-primary text-white font-extrabold shadow-lg' : 'bg-slate-900/40 hover:bg-slate-900/80'}">
+                                    <i data-lucide="${t.icon}" class="w-4 h-4"></i>
+                                    <div>
+                                        <div class="text-xs leading-none">${t.name}</div>
+                                        <div class="text-[9px] text-slate-300 mt-1">${t.desc}</div>
+                                    </div>
+                                </button>
+                            `).join('')}
+                        </div>
+
+                        <!-- Active Tool Panel detail -->
+                        <div class="md:col-span-2 glass-card p-6 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-secondary to-white">${currentTool.name}</h3>
+                                    <span class="text-xs font-bold px-3 py-1 bg-secondary/10 text-secondary border border-secondary/20 rounded-full">${currentTool.desc}</span>
+                                </div>
+
+                                <div class="space-y-4 text-xs">
+                                    <div>
+                                        <strong class="text-accent uppercase tracking-wider text-[10px] block mb-1">Core Capabilities:</strong>
+                                        <ul class="list-disc ml-4 space-y-1">
+                                            ${currentTool.features.map(f => `<li>${f}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <strong class="text-emerald-400 uppercase tracking-wider text-[10px] block mb-1">Advantage:</strong>
+                                        <p class="text-slate-300">${currentTool.advantages}</p>
+                                    </div>
+                                    <div>
+                                        <strong class="text-primary uppercase tracking-wider text-[10px] block mb-1">Best Academic Use-Case:</strong>
+                                        <p class="text-slate-300">${currentTool.cases}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 p-3 bg-slate-950/60 rounded-xl border border-white/5 text-[11px] italic text-slate-400 text-center">
+                                Tip: Never limit yourself to one model. Chain them together for expert projects!
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tool Matching Drag & Drop Simulator -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold mb-2 flex items-center gap-2">
+                            <i data-lucide="puzzle" class="text-accent w-5 h-5"></i> Tool Matching Challenge
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-6">Select a task on the left, then click on the perfect AI tool for that task on the right to match them up.</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Tasks Column -->
+                            <div class="space-y-3">
+                                <div class="text-xs font-bold uppercase text-slate-400">Academic Scenario</div>
+                                <button id="task-a" onclick="selectMatchPair('task-a')" class="w-full text-left p-3 rounded-xl bg-slate-900 border border-white/5 hover:border-primary transition-all text-xs">
+                                    <strong>Scenario 1:</strong> Need coding debug helper for C++ compile errors.
+                                </button>
+                                <button id="task-b" onclick="selectMatchPair('task-b')" class="w-full text-left p-3 rounded-xl bg-slate-900 border border-white/5 hover:border-primary transition-all text-xs">
+                                    <strong>Scenario 2:</strong> Need references & citations for software architecture thesis.
+                                </button>
+                                <button id="task-c" onclick="selectMatchPair('task-c')" class="w-full text-left p-3 rounded-xl bg-slate-900 border border-white/5 hover:border-primary transition-all text-xs">
+                                    <strong>Scenario 3:</strong> Need dynamic voice dialogue briefings directly from uploaded study PDF guides.
+                                </button>
+                            </div>
+
+                            <!-- Tools Column -->
+                            <div class="space-y-3">
+                                <div class="text-xs font-bold uppercase text-slate-400">Recommended Model</div>
+                                <button id="tool-copilot" onclick="selectMatchPair('tool-copilot')" class="w-full text-left p-3 rounded-xl bg-slate-900 border border-white/5 hover:border-primary transition-all text-xs">
+                                    Copilot Coding Support
+                                </button>
+                                <button id="tool-perplexity" onclick="selectMatchPair('tool-perplexity')" class="w-full text-left p-3 rounded-xl bg-slate-900 border border-white/5 hover:border-primary transition-all text-xs">
+                                    Perplexity Referenced Search
+                                </button>
+                                <button id="tool-notebooklm" onclick="selectMatchPair('tool-notebooklm')" class="w-full text-left p-3 rounded-xl bg-slate-900 border border-white/5 hover:border-primary transition-all text-xs">
+                                    NotebookLM Document Ingestor
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Match Evaluation -->
+                        <div class="mt-6 pt-4 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div class="text-xs text-slate-400" id="matching-status-log">Matches: 0 / 3 completed</div>
+                            <button onclick="checkToolMatching()" class="bg-emerald-500 hover:bg-emerald-500/90 text-white font-bold px-6 py-2 rounded-xl text-xs transition-all">
+                                Verify Classifications
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Simulated Group Collaboration Board -->
+                    <div class="glass p-6 rounded-2xl">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+                            <span class="text-xs font-extrabold uppercase text-slate-300 ml-2">Team Brainstorm Dashboard</span>
+                        </div>
+                        <h4 class="text-sm font-bold mb-2">Group Assignment: AI Limitations & Strengths</h4>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="p-4 bg-slate-900 rounded-xl">
+                                <span class="block text-[10px] text-accent font-bold uppercase mb-1">BCA Group 1</span>
+                                <strong class="text-xs block text-slate-200">What it does:</strong>
+                                <p class="text-[11px] text-slate-400">Simplifies difficult code logic instantly into plain concepts.</p>
+                            </div>
+                            <div class="p-4 bg-slate-900 rounded-xl">
+                                <span class="block text-[10px] text-secondary font-bold uppercase mb-1">Commerce Group 3</span>
+                                <strong class="text-xs block text-slate-200">One Big Advantage:</strong>
+                                <p class="text-[11px] text-slate-400">Builds functional mock study timetables and structured lists.</p>
+                            </div>
+                            <div class="p-4 bg-slate-900 rounded-xl">
+                                <span class="block text-[10px] text-red-400 font-bold uppercase mb-1">Engineering Group 5</span>
+                                <strong class="text-xs block text-slate-200">One Hard Limitation:</strong>
+                                <p class="text-[11px] text-slate-400">Can comfortably hallucinate libraries that don't exist.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4">
+                        <button onclick="navigateToStep(6)" class="text-xs text-slate-500 hover:text-slate-300">Back</button>
+                        <button onclick="navigateToStep(8)" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 text-sm">
+                            Next Mission <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectToolIndex(idx) {
+            playSound('click');
+            appState.selectedToolIndex = idx;
+            renderSlide();
+        }
+
+        // State variables for tap-to-match puzzle
+        let selectedMatchTaskId = null;
+        let selectedMatchToolId = null;
+
+        function selectMatchPair(elementId) {
+            playSound('click');
+            
+            const isTask = elementId.startsWith('task-');
+            const isTool = elementId.startsWith('tool-');
+
+            if (isTask) {
+                // If a task is already selected, clear highlighting on it first
+                if (selectedMatchTaskId) {
+                    document.getElementById(selectedMatchTaskId).classList.remove('border-primary', 'bg-primary/10');
+                }
+                selectedMatchTaskId = elementId;
+                document.getElementById(elementId).classList.add('border-primary', 'bg-primary/10');
+            }
+
+            if (isTool) {
+                // If a tool is already selected, clear highlighting on it first
+                if (selectedMatchToolId) {
+                    document.getElementById(selectedMatchToolId).classList.remove('border-primary', 'bg-primary/10');
+                }
+                selectedMatchToolId = elementId;
+                document.getElementById(elementId).classList.add('border-primary', 'bg-primary/10');
+            }
+
+            // Once both variables are locked in, create matching map
+            if (selectedMatchTaskId && selectedMatchToolId) {
+                appState.toolMatching.matches[selectedMatchTaskId] = selectedMatchToolId;
+                
+                // Visual indicators of connected pairs
+                document.getElementById(selectedMatchTaskId).className = "w-full text-left p-3 rounded-xl bg-primary/20 border-2 border-primary text-xs";
+                document.getElementById(selectedMatchToolId).className = "w-full text-left p-3 rounded-xl bg-primary/20 border-2 border-primary text-xs";
+
+                // Clear temporary select memory
+                selectedMatchTaskId = null;
+                selectedMatchToolId = null;
+
+                const matchCount = Object.keys(appState.toolMatching.matches).length;
+                document.getElementById('matching-status-log').textContent = `Matches: ${matchCount} / 3 completed`;
+            }
+        }
+
+        function checkToolMatching() {
+            const matches = appState.toolMatching.matches;
+            
+            // Correct connections
+            // task-a -> tool-copilot
+            // task-b -> tool-perplexity
+            // task-c -> tool-notebooklm
+
+            const isCorrectA = matches['task-a'] === 'tool-copilot';
+            const isCorrectB = matches['task-b'] === 'tool-perplexity';
+            const isCorrectC = matches['task-c'] === 'tool-notebooklm';
+
+            if (isCorrectA && isCorrectB && isCorrectC) {
+                playSound('success');
+                alert("Brilliant! You mapped every scenario to the perfect student AI tool.");
+                unlockBadge('tool_master');
+                addXP(40);
+            } else {
+                playSound('fail');
+                alert("Some matches are misaligned. Remember: Copilot targets coding syntax, Perplexity handles research citations, and NotebookLM digests massive course PDF books!");
+                // Reset matching
+                appState.toolMatching.matches = {};
+                renderSlide();
+            }
+        }
+
+        // TOPIC 6 (STEP 8)
+        function getTopic6Template() {
+            return `
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 rounded-xl bg-primary/20 text-primary font-bold text-xs">Topic 6</span>
+                        <h2 class="text-3xl font-extrabold">AI Capabilities & Limitations</h2>
+                    </div>
+
+                    <!-- Interactive YES/NO challenge -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold mb-2">The Interactive Capabilities Board</h3>
+                        <p class="text-xs text-slate-400 mb-6">Test the absolute limitations of current LLM intelligence parameters:</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Capabilities side -->
+                            <div class="space-y-3 p-4 bg-slate-900/40 rounded-xl">
+                                <h4 class="text-xs font-extrabold uppercase text-emerald-400 mb-2">Can AI...</h4>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-semibold">Write clean code?</span>
+                                    <button onclick="capAnswer('code', true)" id="btn-cap-code-yes" class="px-3 py-1 bg-slate-800 text-xs font-bold rounded-lg hover:bg-slate-700">YES</button>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-semibold">Generate structured study notes?</span>
+                                    <button onclick="capAnswer('notes', true)" id="btn-cap-notes-yes" class="px-3 py-1 bg-slate-800 text-xs font-bold rounded-lg hover:bg-slate-700">YES</button>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-semibold">Outline high-quality PPT briefs?</span>
+                                    <button onclick="capAnswer('ppt', true)" id="btn-cap-ppt-yes" class="px-3 py-1 bg-slate-800 text-xs font-bold rounded-lg hover:bg-slate-700">YES</button>
+                                </div>
+                            </div>
+
+                            <!-- Limitations side -->
+                            <div class="space-y-3 p-4 bg-slate-900/40 rounded-xl">
+                                <h4 class="text-xs font-extrabold uppercase text-red-400 mb-2">Can AI...</h4>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-semibold">Always predict future events accurately?</span>
+                                    <button onclick="capAnswer('future', false)" id="btn-cap-future-no" class="px-3 py-1 bg-slate-800 text-xs font-bold rounded-lg hover:bg-slate-700">NO</button>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-semibold">Be 100% correct factual source of truth?</span>
+                                    <button onclick="capAnswer('correct', false)" id="btn-cap-correct-no" class="px-3 py-1 bg-slate-800 text-xs font-bold rounded-lg hover:bg-slate-700">NO</button>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-semibold">Fully replace unique human critical design?</span>
+                                    <button onclick="capAnswer('replace', false)" id="btn-cap-replace-no" class="px-3 py-1 bg-slate-800 text-xs font-bold rounded-lg hover:bg-slate-700">NO</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hallucination warning card -->
+                    <div class="glass p-6 rounded-2xl border-l-4 border-red-500 animate-pulse-slow">
+                        <div class="flex gap-4">
+                            <div class="p-3 bg-red-500/20 text-red-400 rounded-xl">
+                                <i data-lucide="shield-alert" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-red-400 text-lg">AI Hallucinations Detected!</h3>
+                                <p class="text-xs text-slate-300 mt-1">
+                                    When models don't have accurate background parameters, they confidently invent details, citations, coding libraries, or historic dates. This pattern anomaly is called <strong>Hallucination</strong>.
+                                </p>
+                                <div class="mt-3 p-2 bg-slate-950/60 rounded text-[11px] font-mono border border-white/5">
+                                    <strong>Hallucination Demo:</strong> AI output claiming "Standard SQL has a specific command called <code>_EXTRACT_ALL_METRICS</code>" (No such command exists!).
+                                </div>
+                                <span class="block text-xs font-bold text-accent mt-3 uppercase tracking-wider">💡 Key Lesson: Always verify critical facts!</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fact Check Challenge -->
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="shield-check" class="text-emerald-400 w-5 h-5"></i> Fact Check Challenge</h3>
+
+                        <div class="space-y-4">
+                            <!-- Challenge Item 1 -->
+                            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 flex flex-wrap justify-between items-center gap-4">
+                                <div>
+                                    <strong class="text-xs text-slate-300">Statement A:</strong>
+                                    <p class="text-xs text-slate-400 italic mt-1">"The Java JDK package has an official core utility called 'System.mathCore' for high-precision calculations."</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="factCheck('item-a', 'verify')" id="btn-fact-a-verify" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold">VERIFY</button>
+                                    <button onclick="factCheck('item-a', 'correct')" id="btn-fact-a-correct" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold">CORRECT</button>
+                                </div>
+                            </div>
+                            <div id="fact-a-feedback" class="hidden text-xs text-slate-400 bg-slate-950/50 p-2.5 rounded border border-white/5">
+                                <strong>Explanation:</strong> This is a standard hallucination. Java uses <code>java.lang.Math</code>. There is no core JDK library named 'System.mathCore'. Always verify!
+                            </div>
+
+                            <!-- Challenge Item 2 -->
+                            <div class="p-4 bg-slate-900/40 rounded-xl border border-white/5 flex flex-wrap justify-between items-center gap-4">
+                                <div>
+                                    <strong class="text-xs text-slate-300">Statement B:</strong>
+                                    <p class="text-xs text-slate-400 italic mt-1">"HTTP stands for Hypertext Transfer Protocol and is the foundation of data communication on the web."</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="factCheck('item-b', 'verify')" id="btn-fact-b-verify" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold">VERIFY</button>
+                                    <button onclick="factCheck('item-b', 'correct')" id="btn-fact-b-correct" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold">CORRECT</button>
+                                </div>
+                            </div>
+                            <div id="fact-b-feedback" class="hidden text-xs text-slate-400 bg-slate-950/50 p-2.5 rounded border border-white/5">
+                                <strong>Explanation:</strong> This is factual and correct.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4">
+                        <button onclick="navigateToStep(7)" class="text-xs text-slate-500 hover:text-slate-300">Back</button>
+                        <button onclick="navigateToStep(9)" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 text-sm">
+                            Next Mission <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function capAnswer(key, isAllowed) {
+            const btn = document.getElementById(`btn-cap-${key}-${isAllowed ? 'yes' : 'no'}`);
+            btn.className = "px-3 py-1 bg-emerald-500 text-white text-xs font-black rounded-lg shadow-lg shadow-emerald-500/20 animate-pulse";
+            playSound('success');
+            addXP(10);
+        }
+
+        function factCheck(itemId, action) {
+            const correctActions = {
+                'item-a': 'verify',
+                'item-b': 'correct'
+            };
+
+            const isCorrect = correctActions[itemId] === action;
+            const btnVerify = document.getElementById(`btn-fact-${itemId === 'item-a' ? 'a' : 'b'}-verify`);
+            const btnCorrect = document.getElementById(`btn-fact-${itemId === 'item-a' ? 'a' : 'b'}-correct`);
+            const feedbackPanel = document.getElementById(`fact-${itemId === 'item-a' ? 'a' : 'b'}-feedback`);
+
+            feedbackPanel.classList.remove('hidden');
+
+            if (isCorrect) {
+                playSound('success');
+                if (action === 'verify') {
+                    btnVerify.className = "px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-xs font-black shadow-lg shadow-emerald-500/20";
+                    btnCorrect.className = "px-3 py-1.5 bg-slate-800/20 text-slate-600 rounded-lg text-xs font-bold";
+                } else {
+                    btnCorrect.className = "px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-xs font-black shadow-lg shadow-emerald-500/20";
+                    btnVerify.className = "px-3 py-1.5 bg-slate-800/20 text-slate-600 rounded-lg text-xs font-bold";
+                }
+
+                if (!appState.factCheckAnswers[itemId]) {
+                    appState.factCheckAnswers[itemId] = true;
+                    addXP(20);
+                }
+                unlockBadge('smart_verifier');
+            } else {
+                playSound('fail');
+                if (action === 'verify') {
+                    btnVerify.className = "px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-bold";
+                } else {
+                    btnCorrect.className = "px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs font-bold";
+                }
+            }
+        }
+
+        // TREASURE HUNT (STEP 9)
+        function getTreasureHuntTemplate() {
+            const listChallenges = [
+                { id: 'timetable', title: 'Create Study Timetable', desc: 'Craft a highly structured daily revision timetable for upcoming college exams.' },
+                { id: 'mcqs', title: 'Generate 10 MCQs', desc: 'Design an interactive multiple choice quiz to test understanding of software loops.' },
+                { id: 'summary', title: 'Summarize Complex Topic', desc: 'Synthesize details of SDLC design methodology into structured bullet lists.' },
+                { id: 'interview', title: 'Create Interview Questions', desc: 'Generate key technical interviews questions for beginner developer positions.' },
+                { id: 'quote', title: 'Generate Motivational Quote', desc: 'Formulate highly personalized motivational tips for BCA students.' }
+            ];
+
+            const activeChallenge = listChallenges.find(c => c.id === appState.treasureHuntSelection);
+
+            return `
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 rounded-xl bg-accent/20 text-accent font-bold text-xs">Final Activity</span>
+                        <h2 class="text-3xl font-extrabold">AI Treasure Hunt</h2>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-accent to-white">
+                            Select Your Study Asset Challenge
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-6">
+                            Pick an assignment topic below, draft a comprehensive prompt for your AI Study Partner, and verify its structure!
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-6">
+                            ${listChallenges.map(c => `
+                                <button onclick="selectHuntChallenge('${c.id}')" class="p-3 text-left rounded-xl border text-xs transition-all ${c.id === appState.treasureHuntSelection ? 'bg-accent/20 border-accent text-white font-extrabold shadow-lg shadow-accent/10' : 'bg-slate-900 border-white/5 hover:border-slate-400'}">
+                                    ${c.title}
+                                </button>
+                            `).join('')}
+                        </div>
+
+                        <!-- Active Challenge Workspace -->
+                        <div class="p-5 bg-slate-950/60 rounded-xl border border-white/10 space-y-4">
+                            <div>
+                                <span class="text-[10px] uppercase font-black text-accent tracking-widest block mb-1">Active Target</span>
+                                <strong class="text-sm text-slate-200">${activeChallenge.title}</strong>
+                                <p class="text-xs text-slate-400 mt-1">${activeChallenge.desc}</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Your Expert Prompt Design:</label>
+                                <textarea id="hunt-prompt-input" placeholder="e.g. You are an expert academic counselor. Design a highly detailed 14-day study timetable for a BCA student preparing for Data Structures exams. Allocate blocks of 2 hours, incorporate rest cycles, and format as a clean Markdown table." class="w-full bg-slate-900 border border-white/10 rounded-xl p-4 focus:outline-none focus:border-accent text-xs h-32 resize-none">${appState.treasureHuntSubmission}</textarea>
+                            </div>
+
+                            <button onclick="evaluateTreasureHunt()" class="bg-accent text-slate-950 font-black px-6 py-3 rounded-xl hover:scale-105 transition-all text-xs flex items-center gap-2">
+                                <i data-lucide="gem" class="w-4 h-4"></i> Submit Prompt Study Asset
+                            </button>
+
+                            <!-- Score display -->
+                            <div id="hunt-evaluation-box" class="${appState.treasureHuntEvaluated ? 'block' : 'hidden'} p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold uppercase text-emerald-400">Structure Rating Secured!</span>
+                                    <span class="text-lg font-black text-emerald-400">${appState.treasureHuntScore}/100</span>
+                                </div>
+                                <p class="text-xs text-slate-300">
+                                    Outstanding structural work! Your prompt design includes distinct roles, target subjects, timeline parameters, and requested structural outputs. You have unlocked the **Treasure Hunter Badge**!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4">
+                        <button onclick="navigateToStep(8)" class="text-xs text-slate-500 hover:text-slate-300">Back</button>
+                        <button onclick="navigateToStep(10)" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 text-sm">
+                            Next Mission <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectHuntChallenge(id) {
+            playSound('click');
+            appState.treasureHuntSelection = id;
+            renderSlide();
+        }
+
+        function evaluateTreasureHunt() {
+            const promptStr = document.getElementById('hunt-prompt-input').value.trim();
+            if (promptStr.length < 20) {
+                playSound('fail');
+                alert("Prompt structure is too light. Include clear academic objectives to continue!");
+                return;
+            }
+
+            appState.treasureHuntSubmission = promptStr;
+            appState.treasureHuntEvaluated = true;
+            appState.treasureHuntScore = 95; // Simulated high score for design effort
+            
+            addXP(50);
+            unlockBadge('treasure_hunter');
+            renderSlide();
+        }
+
+        // REFLECTION & CLOSURE (STEP 10)
+        function getReflectionTemplate() {
+            const ref = appState.reflectionData;
+
+            return `
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 rounded-xl bg-primary/20 text-primary font-bold text-xs">Mission Closure</span>
+                        <h2 class="text-3xl font-extrabold">Reflection Dashboard</h2>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl space-y-6">
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">Secure Your Learnings (3-2-1 Reflection)</h3>
+                            <p class="text-xs text-slate-400">Lock in your knowledge before preparing for graduation.</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Section 1 -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-2">3 things you learned about AI & prompts today:</label>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <input type="text" id="ref-learned-0" value="${ref.learned[0]}" placeholder="e.g. Prompts need specific formats" class="bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-primary">
+                                    <input type="text" id="ref-learned-1" value="${ref.learned[1]}" placeholder="e.g. AI is pattern predictor" class="bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-primary">
+                                    <input type="text" id="ref-learned-2" value="${ref.learned[2]}" placeholder="e.g. Models can hallucinate" class="bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-primary">
+                                </div>
+                            </div>
+
+                            <!-- Section 2 -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-2">2 AI Tools you plan to explore this week:</label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <input type="text" id="ref-tools-0" value="${ref.tools[0]}" placeholder="e.g. NotebookLM for PDF study notes" class="bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-primary">
+                                    <input type="text" id="ref-tools-1" value="${ref.tools[1]}" placeholder="e.g. Copilot for assembly debugging" class="bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-primary">
+                                </div>
+                            </div>
+
+                            <!-- Section 3 -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-400 mb-1">1 specific way you will use AI to supercharge your study workload this week:</label>
+                                <input type="text" id="ref-usecase" value="${ref.useCase}" placeholder="e.g. Ingesting my operating systems PDF into NotebookLM to generate structured interview questions" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-primary">
+                            </div>
+                        </div>
+
+                        <button onclick="submitReflection()" class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+                            Secure Reflection Log & Complete (+30 XP)
+                        </button>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4">
+                        <button onclick="navigateToStep(9)" class="text-xs text-slate-500 hover:text-slate-300">Back</button>
+                        <button onclick="navigateToStep(11)" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 text-sm">
+                            Next Mission <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function submitReflection() {
+            const learned = [
+                document.getElementById('ref-learned-0').value.trim(),
+                document.getElementById('ref-learned-1').value.trim(),
+                document.getElementById('ref-learned-2').value.trim()
+            ];
+            const tools = [
+                document.getElementById('ref-tools-0').value.trim(),
+                document.getElementById('ref-tools-1').value.trim()
+            ];
+            const useCase = document.getElementById('ref-usecase').value.trim();
+
+            if (!learned[0] || !tools[0] || !useCase) {
+                playSound('fail');
+                alert("Please fill out at least one item from each reflection tier!");
+                return;
+            }
+
+            appState.reflectionData = { learned, tools, useCase };
+            addXP(30);
+            navigateToStep(11);
+        }
+
+        // GRADUATION & DAY 2 TEASER (STEP 11)
+        function getGraduationTemplate() {
+            const studentName = appState.userName || "Distinguished Explorer";
+            const dateStr = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+
+            return `
+                <div class="space-y-8 text-center py-6">
+                    <div>
+                        <div class="inline-flex p-3.5 bg-accent/20 text-accent rounded-full mb-4 animate-float">
+                            <i data-lucide="crown" class="w-10 h-10"></i>
+                        </div>
+                        <h2 class="text-4xl md:text-5xl font-black mb-2">CONGRATULATIONS!</h2>
+                        <p class="text-sm text-slate-400">You have completed your first AI Prompt Master training mission.</p>
+                    </div>
+
+                    <!-- Interactive dynamic certificate structure -->
+                    <div class="max-w-3xl mx-auto p-1 bg-gradient-to-r from-primary via-secondary to-accent rounded-3xl shadow-2xl overflow-hidden">
+                        <div class="bg-[#0b0b1e] p-8 md:p-12 rounded-[22px] text-center space-y-6 relative border border-white/5">
+                            
+                            <!-- Certificate Header border markings -->
+                            <div class="flex justify-between items-center opacity-30 text-xs">
+                                <span>CRID: PX-2026-X1</span>
+                                <span>VERIFIED AUTH: MASTER_PROMPT</span>
+                            </div>
+
+                            <div class="space-y-2">
+                                <span class="block text-xs font-bold text-accent uppercase tracking-widest">Certificate of Completion</span>
+                                <h3 class="text-xl font-bold uppercase text-slate-400 tracking-wider">Awarded To</h3>
+                                <p class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-secondary border-b border-white/10 pb-2 inline-block px-12">${studentName}</p>
+                            </div>
+
+                            <p class="text-xs text-slate-300 max-w-lg mx-auto leading-relaxed">
+                                For successfully completing **AI Prompt Master: Day 1 - Meet Your AI Study Partner**. 
+                                Exhibiting conceptual proficiency in understanding Prompt Structures, LLM Modalities, Fact Checking, and Tool Selection frameworks.
+                            </p>
+
+                            <div class="flex justify-between items-end flex-wrap gap-6 pt-6 border-t border-white/10 text-left text-[11px] text-slate-400">
+                                <div>
+                                    <span class="block text-[9px] uppercase font-bold text-slate-500">Date Completed</span>
+                                    <strong>${dateStr}</strong>
+                                </div>
+                                <div class="text-center">
+                                    <span class="block text-[9px] uppercase font-bold text-slate-500">Milestone Unlocked</span>
+                                    <span class="font-black text-secondary uppercase tracking-widest flex items-center justify-center gap-1">
+                                        <i data-lucide="award" class="w-4 h-4"></i> AI Explorer
+                                    </span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="block text-[9px] uppercase font-bold text-slate-500">Final Earned score</span>
+                                    <strong>${appState.xp} Cumulative XP</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex justify-center gap-4">
+                        <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-2xl transition-all text-xs flex items-center gap-2 shadow-lg">
+                            <i data-lucide="printer" class="w-4 h-4"></i> Print Certificate
+                        </button>
+                    </div>
+
+                    <!-- Day 2 preview teaser with animation -->
+                    <div class="max-w-2xl mx-auto p-6 glass rounded-2xl border border-secondary/30 text-left relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                            <i data-lucide="key" class="w-32 h-32 text-secondary"></i>
+                        </div>
+                        
+                        <span class="text-[9px] font-black uppercase text-secondary tracking-widest bg-secondary/10 border border-secondary/20 rounded-full px-2.5 py-1">Day 2 Preview</span>
+                        <h3 class="text-lg font-black mt-3">The Secret Behind Getting Amazing AI Outputs: Smart Prompt Writing</h3>
+                        <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                            Tomorrow, we transition from baseline explorers to architect-level creators. Discover the secret prompts that get professional level grades, summarize 20-page papers instantly, and build complete software applications from simple concept instructions.
+                        </p>
+
+                        <!-- Pulse element to build excitement -->
+                        <div class="mt-4 flex items-center gap-2 text-xs font-bold text-secondary animate-pulse">
+                            <i data-lucide="sparkles" class="w-4 h-4 animate-spin"></i> Core Mission Unlocks Tomorrow at 09:00 AM!
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        window.onload = function() {
+            renderSlide();
+            renderSidebar();
+            updateXPDisplay();
+            renderBadgeShelf();
+        };
+    </script>
+</body>
+</html>
